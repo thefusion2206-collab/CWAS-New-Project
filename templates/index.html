@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+<div><span class="pill">LIVE AUTOMATED AUDIT</span>
+<h1>Scan any website.<br><span>Find accessibility issues.</span></h1>
+<p>Enter a public URL. A real browser opens automatically, axe rules run, and you get a graded report with severity, WCAG levels, quick wins and exports.</p></div>
+<div class="engine"><div class="radar"></div><b>AXE ENGINE</b><small>AUTOMATIC RULE DISCOVERY</small></div>
+</section>
+<section class="scanner">
+<form method="POST" onsubmit="loading()">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label for="url">Website URL</label>
+<div class="row"><input id="url" name="url" placeholder="https://example.com" required><button id="btn">✦ Scan Website</button></div>
+<small>Example: https://example.com • Publicly reachable websites work best</small>
+</form></section>
+{% if error %}<div class="error" role="alert">⚠ {{ error }}</div>{% endif %}
+{% if recent %}
+<h3 class="section">🕘 Recent scans <em>click to reopen the full report</em></h3>
+<div class="list">{% for r in recent %}
+<a class="card recent" href="{{ url_for('scan_detail', sid=r.id) }}"><div class="icon">{{ r.score }}</div><div><h4>{{ r.title or 'Untitled' }}</h4><p>{{ r.url }}</p></div><code>{{ r.scan_time }}</code></a>
+{% endfor %}</div>{% endif %}
+<div id="loading" role="alert"><div class="spinner"></div><h2>Scanning website...</h2><p>Chrome + axe engine are running automatic accessibility tests.</p></div>
+<script>
+function loading(){document.getElementById('loading').classList.add('show');document.getElementById('btn').disabled=true;document.getElementById('btn').innerText='Scanning...';}
+</script>
+{% endblock %}

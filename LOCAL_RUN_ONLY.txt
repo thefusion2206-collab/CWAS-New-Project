@@ -1,0 +1,4 @@
+This project is configured to be used locally with MySQL Workbench.
+GitHub/Railway hosting is NOT required for the college project.
+Run: python app.py
+Open: http://127.0.0.1:5000

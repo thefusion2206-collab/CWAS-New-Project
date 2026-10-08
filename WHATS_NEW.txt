@@ -1,0 +1,21 @@
+AccessGuard v2 - What's New
+===========================
+Run exactly like before:  pip install -r requirements.txt  ->  python app.py  ->  http://127.0.0.1:5000
+(No new libraries, database tables unchanged - your old data still works.)
+
+1. Graded report page  (/scan/<id>)
+   - Animated score ring, A-F grade, impact-weighted score, risk level
+   - Severity chart (critical/serious/moderate/minor)
+   - WCAG level breakdown (A, AA, 2.1, 2.2, best practice) + category breakdown
+   - "Quick wins": top 5 fixes ranked by impact x affected elements
+   - Live search + impact filter on all rules
+   - After a scan you are redirected here, so refresh no longer re-scans
+2. Dashboard (/dashboard): average/best/worst score, score trend graph,
+   severity totals, most recurring issues across your scans
+3. Compare (/compare): before vs after - fixed, new and still-failing issues
+4. Export: JSON, CSV, and Print/PDF (print-friendly CSS)
+5. Delete your own scans, filter box in Scan History, recent scans on home page
+6. Security: CSRF protection on every form, SSRF guard (blocks private/internal
+   URLs when hosted on Railway; local runs unaffected), ownership check on scans
+7. Accessibility of the tool itself: skip link, focus outlines, aria labels,
+   reduced-motion support

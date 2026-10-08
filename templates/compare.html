@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="history"><span class="pill">BEFORE vs AFTER</span><h1>Compare Scans</h1><p>Pick an older scan and a newer one to see what you fixed and what broke.</p></section>
+<form class="scanner" method="GET"><div class="row">
+<select name="a" aria-label="Before scan">{% for s in scans %}<option value="{{ s.id }}" {{ 'selected' if s.id==a }}>#{{ s.id }} · {{ (s.title or s.url)|truncate(30) }} · {{ s.score }}</option>{% endfor %}</select>
+<select name="b" aria-label="After scan">{% for s in scans %}<option value="{{ s.id }}" {{ 'selected' if s.id==b }}>#{{ s.id }} · {{ (s.title or s.url)|truncate(30) }} · {{ s.score }}</option>{% endfor %}</select>
+<button>⇄ Compare</button></div></form>
+{% if res %}
+<section class="stats">
+<div><i>A</i><small>BEFORE</small><b>{{ res.A.score }}</b></div>
+<div><i>B</i><small>AFTER</small><b>{{ res.B.score }}</b></div>
+<div class="{{ 'pass' if res.delta>=0 else 'fail' }}"><i>Δ</i><small>CHANGE</small><b>{{ '%+d'|format(res.delta) }}</b></div>
+<div class="pass"><i>✓</i><small>FIXED</small><b>{{ res.fixed|length }}</b></div></section>
+{% for title, items, kind in [('✅ Fixed issues', res.fixed, 'passed'), ('🆕 New issues', res.new, 'failed'), ('⏳ Still failing', res.same, 'incomplete')] %}
+<h3 class="section">{{ title }} <em>{{ items|length }}</em></h3>
+<div class="list">{% for x in items %}<article class="card {{ kind }}"><div class="icon">•</div><div><span class="impact">{{ x.impact|upper }}</span><h4>{{ x.help }}</h4></div><code>{{ x.id }}</code></article>{% else %}<div class="empty">Nothing here.</div>{% endfor %}</div>
+{% endfor %}{% endif %}{% endblock %}

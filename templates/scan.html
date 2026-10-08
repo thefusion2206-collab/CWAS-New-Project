@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% macro card(x, kind) %}
+<article class="card {{ kind }}" data-imp="{{ x.impact }}"><div class="icon">{{ {'passed':'✓','failed':'×','incomplete':'!'}[kind] }}</div><div>
+{% if kind == 'failed' %}<span class="impact">{{ x.impact|upper }} IMPACT · {{ x.nodes|length }} ELEMENT(S)</span>{% endif %}
+<h4>{{ x.help }}</h4><p>{{ x.description }}</p>
+{% if kind == 'failed' %}<div class="fix"><b>💡 Recommended Fix</b><p>{{ x.nodes[0].failureSummary if x.nodes else "Review the affected element." }}</p>
+{% if x.helpUrl %}<a href="{{ x.helpUrl }}" target="_blank" rel="noopener">View remediation guidance →</a>{% endif %}</div>
+{% if x.nodes %}<details><summary>Show affected elements ({{ x.nodes|length }})</summary>{% for n in x.nodes[:5] %}<pre>{{ n.target|join(' ') }}
+{{ n.html }}</pre>{% endfor %}</details>{% endif %}
+{% else %}<div class="tags">{% for t in x.tags[:5] %}<span>{{ t }}</span>{% endfor %}</div>{% endif %}
+</div><code>{{ x.id }}</code></article>
+{% endmacro %}
+{% block content %}
+{% set a = d.analysis %}
+<section class="result-head">
+<div><span class="eyebrow">SCAN #{{ d.id }} · {{ d.scan_time }}</span><h2>{{ d.title }}</h2><p>{{ d.url }}</p>
+<div class="actions no-print">
+<a href="{{ url_for('scan_export', sid=d.id, fmt='json') }}">⬇ JSON</a>
+<a href="{{ url_for('scan_export', sid=d.id, fmt='csv') }}">⬇ CSV</a>
+<a href="#" onclick="window.print();return false">🖨 Print / PDF</a>
+<a href="{{ url_for('compare', b=d.id) }}">⇄ Compare</a>
+<form method="POST" action="{{ url_for('scan_delete', sid=d.id) }}" onsubmit="return confirm('Delete this scan?')"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="danger">🗑 Delete</button></form>
+</div></div>
+<div class="ring-wrap"><svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Score {{ d.score }} out of 100"><circle cx="60" cy="60" r="52" class="bg"/><circle cx="60" cy="60" r="52" class="fg g{{ a.grade }}" style="stroke-dasharray:326.7;stroke-dashoffset:{{ (326.7*(1-d.score/100))|round(1) }}"/></svg>
+<div class="ring-in"><b>{{ d.score }}</b><small>/100</small></div></div>
+</section>
+
+<section class="stats">
+<div class="grade g{{ a.grade }}"><i>{{ a.grade }}</i><small>GRADE (WEIGHTED {{ a.weighted }})</small><b>Risk: {{ a.risk }}</b></div>
+<div class="pass"><i>✓</i><small>PASSED</small><b>{{ d.passed }}</b></div>
+<div class="fail"><i>×</i><small>FAILED · {{ a.elements }} ELEMENTS</small><b>{{ d.failed }}</b></div>
+<div class="warn"><i>!</i><small>INCOMPLETE</small><b>{{ d.incomplete }}</b></div>
+</section>
+
+<section class="panels">
+<div class="panel"><h3>Severity</h3>{% for k, c in a.sev.items() %}<div class="bar"><span>{{ k|title }}</span><div><i class="s-{{ k }}" style="width:{{ (c/a.sev_max*100)|round }}%"></i></div><b>{{ c }}</b></div>{% endfor %}</div>
+<div class="panel"><h3>WCAG levels</h3>{% for k, c in a.levels.items() %}<div class="bar"><span>{{ k }}</span><div><i class="s-pass" style="width:{{ (c.pass/((c.pass+c.fail) or 1)*100)|round }}%"></i></div><b>{{ c.fail }}✗ {{ c.pass }}✓</b></div>{% else %}<p class="muted">No WCAG tags returned.</p>{% endfor %}</div>
+<div class="panel"><h3>Categories</h3>{% for c in a.cats[:7] %}<div class="bar"><span>{{ c.name }}</span><div><i class="s-pass" style="width:{{ (c.pass/c.total*100)|round }}%"></i></div><b>{{ c.fail }}✗ {{ c.pass }}✓</b></div>{% endfor %}</div>
+</section>
+
+{% if a.quick %}<h3 class="section">⚡ Quick wins <em>highest impact × most elements, fix these first</em></h3>
+<ol class="quick">{% for x in a.quick %}<li><b>{{ x.help }}</b><span class="impact">{{ x.impact|upper }}</span><small>{{ x.nodes|length }} element(s) · {{ x.id }}</small></li>{% endfor %}</ol>{% endif %}
+
+<div class="filters no-print"><input id="q" type="search" placeholder="🔎 Search rules, e.g. contrast, aria, label…" aria-label="Search rules"><select id="imp" aria-label="Filter by impact"><option value="">All impacts</option><option>critical</option><option>serious</option><option>moderate</option><option>minor</option></select></div>
+
+<h3 class="section">🔴 Failed Tests & Remediation <em>{{ d.failed }} rules need attention</em></h3>
+<div class="list">{% for x in d.violations|sort(attribute='impact') %}{{ card(x, 'failed') }}{% else %}<div class="success">🎉 No violations were detected by the automatic axe scan.</div>{% endfor %}</div>
+{% if d.incomplete_results %}<h3 class="section">🟡 Incomplete Tests <em>Manual review may be required</em></h3><div class="list">{% for x in d.incomplete_results %}{{ card(x, 'incomplete') }}{% endfor %}</div>{% endif %}
+<h3 class="section">🟢 Passed Tests <em>{{ d.passed }} rules passed</em></h3><div class="list">{% for x in d.passes %}{{ card(x, 'passed') }}{% endfor %}</div>
+<div class="again no-print"><a href="{{ url_for('index') }}">↻ Run another scan</a></div>
+<script>
+const q=document.getElementById('q'),imp=document.getElementById('imp');
+function f(){const t=q.value.toLowerCase();document.querySelectorAll('.list .card').forEach(c=>{const ok=c.textContent.toLowerCase().includes(t)&&(!imp.value||c.dataset.imp===imp.value);c.style.display=ok?'':'none';});}
+q.oninput=imp.onchange=f;
+</script>
+{% endblock %}

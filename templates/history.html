@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="history"><span class="pill">MYSQL DATABASE</span><h1>Scan History</h1><p>Completed scans are stored in MySQL for your project records.</p></section>
+<div class="filters"><input id="hq" type="search" placeholder="🔎 Filter scans…" aria-label="Filter scans"></div>
+<div class="table"><table><thead><tr><th>ID</th><th>USER</th><th>WEBSITE</th><th>SCORE</th><th>TOTAL</th><th>PASSED</th><th>FAILED</th><th>INCOMPLETE</th><th>DATE</th></tr></thead>
+<tbody>{% for r in rows %}<tr><td>#{{r.id}}</td><td>{{r.username}}</td><td><a href="{{ url_for('scan_detail', sid=r.id) }}"><b>{{r.title or 'Untitled'}}</b></a><small>{{r.url}}</small></td><td><strong class="badge">{{r.score}}/100</strong></td><td>{{r.total_tests}}</td><td class="green">{{r.passed_tests}}</td><td class="red">{{r.failed_tests}}</td><td class="yellow">{{r.incomplete_tests}}</td><td>{{r.scan_time}}</td></tr>
+{% else %}<tr><td colspan="9" class="empty">No scans yet.</td></tr>{% endfor %}</tbody></table></div>
+<div class="again"><a href="{{url_for('index')}}">← Back to Scanner</a></div>
+<script>document.getElementById('hq').oninput=e=>document.querySelectorAll('tbody tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(e.target.value.toLowerCase())?'':'none')</script>
+{% endblock %}

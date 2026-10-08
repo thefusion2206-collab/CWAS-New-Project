@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="history"><span class="pill">YOUR ANALYTICS</span><h1>Dashboard</h1><p>Insights across your last {{ stats.count }} scans.</p></section>
+{% if not stats.count %}<div class="empty">No scans yet. <a href="{{ url_for('index') }}">Run your first scan →</a></div>{% else %}
+<section class="stats">
+<div><i>Σ</i><small>SCANS</small><b>{{ stats.count }}</b></div>
+<div class="pass"><i>∅</i><small>AVERAGE SCORE</small><b>{{ stats.avg }}</b></div>
+<div class="pass"><i>★</i><small>BEST · {{ stats.best.title|default('', true)|truncate(18) }}</small><b>{{ stats.best.score }}</b></div>
+<div class="fail"><i>▼</i><small>WORST · {{ stats.worst.title|default('', true)|truncate(18) }}</small><b>{{ stats.worst.score }}</b></div>
+</section>
+<section class="panels two">
+<div class="panel"><h3>Score trend</h3><svg viewBox="0 0 600 160" class="trend" role="img" aria-label="Score trend over time"><polyline points="{{ pts }}" fill="none" stroke="#62e8c6" stroke-width="3"/>{% for p in pts.split() %}<circle cx="{{ p.split(',')[0] }}" cy="{{ p.split(',')[1] }}" r="4" fill="#687bff"/>{% endfor %}</svg></div>
+<div class="panel"><h3>Violations by severity</h3>{% for k in ['critical','serious','moderate','minor'] %}<div class="bar"><span>{{ k|title }}</span><div><i class="s-{{ k }}" style="width:{{ (sev[k]/sev_max*100)|round }}%"></i></div><b>{{ sev[k] }}</b></div>{% endfor %}</div>
+</section>
+<h3 class="section">🔁 Most recurring issues <em>across all your scans</em></h3>
+<ol class="quick">{% for id, r in top %}<li><b>{{ r.help }}</b><span class="impact">{{ r.impact|upper }}</span><small>seen in {{ r.count }} scan(s) · {{ id }}</small></li>{% endfor %}</ol>
+{% endif %}{% endblock %}

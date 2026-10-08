@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login - AccessGuard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="auth-logo">A</div>
+    <h1>Welcome to AccessGuard</h1>
+    <p class="auth-subtitle">AUTOMATED ACCESSIBILITY SCANNER</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="auth-message {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter username" required autofocus>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+
+        <button class="auth-btn" type="submit">Login →</button>
+    </form>
+
+    <p class="auth-link">New user? <a href="{{ url_for('register') }}">Create an account</a></p>
+</div>
+</body>
+</html>

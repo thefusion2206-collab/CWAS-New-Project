@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="history">
+<span class="pill">MYSQL DATABASE</span>
+<h1>Login Records</h1>
+<p>Every successful login is recorded in MySQL.</p>
+</section>
+<div class="table">
+<table>
+<thead><tr><th>ID</th><th>USERNAME</th><th>LOGIN TIME</th></tr></thead>
+<tbody>
+{% for r in rows %}
+<tr><td>#{{r.id}}</td><td><b>{{r.username}}</b></td><td>{{r.login_time}}</td></tr>
+{% else %}
+<tr><td colspan="3" class="empty">No login records yet.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="again"><a href="{{url_for('index')}}">← Back to Scanner</a></div>
+{% endblock %}

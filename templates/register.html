@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Register - AccessGuard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="auth-logo">A</div>
+    <h1>Create Account</h1>
+    <p class="auth-subtitle">ACCESSGUARD USER REGISTRATION</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="auth-message {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Choose username" required>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Choose password" required>
+
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+
+        <button class="auth-btn" type="submit">Create Account →</button>
+    </form>
+
+    <p class="auth-link">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+</div>
+</body>
+</html>
